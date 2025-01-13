@@ -34,7 +34,7 @@ export class UsersService implements OnModuleInit {
     return this.usersService.findOneUser({ id })
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
+  update(id: string, updateUserDto: UpdateUserDto) {
     return this.usersService.updateUser({ id, ...updateUserDto })
   }
 
