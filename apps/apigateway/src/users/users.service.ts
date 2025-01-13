@@ -1,12 +1,15 @@
 import {
   CreateUserDto,
+  PaginationDto,
   USERS_SERVICE_NAME,
   UpdateUserDto,
+  Users,
   UsersServiceClient
 } from "@app/common"
 import { Inject, Injectable, OnModuleInit } from "@nestjs/common"
 import { AUTH_SERVICE } from "./constants"
 import { ClientGrpc } from "@nestjs/microservices"
+import { ReplaySubject } from "rxjs"
 
 @Injectable()
 export class UsersService implements OnModuleInit {
@@ -37,5 +40,23 @@ export class UsersService implements OnModuleInit {
 
   remove(id: string) {
     return this.usersService.removeUser({ id })
+  }
+
+  emailUsers() {
+    const users$ = new ReplaySubject<PaginationDto>()
+
+    // 100 인걸 알고있으니 4번 호출하는 방식으로 해봄
+    users$.next({ page: 0, skip: 25 })
+    users$.next({ page: 1, skip: 25 })
+    users$.next({ page: 2, skip: 25 })
+    users$.next({ page: 3, skip: 25 })
+
+    users$.complete()
+
+    let chunkNumber = 1
+    this.usersService.queryUser(users$).subscribe((users) => {
+      console.log("Chunk:", chunkNumber, users)
+      chunkNumber++
+    })
   }
 }
